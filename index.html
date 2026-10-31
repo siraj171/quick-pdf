@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="Quick PDF converts your photos into PDF files right in your browser. Nothing is uploaded to any server.">
+<meta name="referrer" content="no-referrer">
+<title>Quick PDF | Image to PDF Converter by Nazar Softwares</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root { color-scheme: dark; }
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden], .hidden { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: #0b0f17;
+    color: #d6dde8;
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    overflow-x: hidden;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  a { color: #67e8f9; }
+  h1, h2, h3, p { margin: 0; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button:disabled { cursor: not-allowed; opacity: .45; }
+  :focus-visible { outline: 2px solid #22d3ee; outline-offset: 2px; }
+
+  .aurora {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(60% 50% at 15% 0%, rgba(34,211,238,.20), transparent 70%),
+      radial-gradient(55% 45% at 90% 20%, rgba(168,85,247,.20), transparent 70%),
+      radial-gradient(60% 50% at 50% 100%, rgba(59,130,246,.18), transparent 70%);
+  }
+  .wrap { width: 100%; max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+  .glass {
+    background: rgba(17,24,39,.72);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    border: 1px solid rgba(148,163,184,.16);
+    border-radius: 20px;
+  }
+
+  /* Header */
+  .topbar {
+    position: sticky; top: 0; z-index: 40;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 12px; padding-bottom: 12px; }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 18px; color: #fff; background: none; border: 0; padding: 0; }
+  .logo {
+    width: 32px; height: 32px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #06b6d4, #a855f7); font-size: 15px;
+  }
+  .brand-by { font-size: 12px; color: #c4b5fd; font-weight: 500; }
+  .nav { display: flex; align-items: center; gap: 2px; font-size: 14px; font-weight: 500; }
+  .nav button { background: none; border: 0; padding: 6px 8px; border-radius: 8px; }
+  .nav button:hover { color: #67e8f9; }
+
+  main { position: relative; padding: 0 0 64px; }
+
+  /* Buttons */
+  .btn-primary {
+    background: linear-gradient(135deg, #06b6d4, #3b82f6); color: #fff; border: 0;
+    border-radius: 16px; font-weight: 600; padding: 14px 24px;
+    box-shadow: 0 10px 30px -10px rgba(6,182,212,.6);
+  }
+  .btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+  .btn-ghost {
+    background: rgba(148,163,184,.10); border: 1px solid rgba(148,163,184,.22); color: #e2e8f0;
+    border-radius: 16px; font-weight: 500; padding: 14px 24px;
+  }
+  .btn-ghost:hover:not(:disabled) { background: rgba(148,163,184,.18); }
+  .btn-link { background: none; border: 0; color: #9ca3af; font-size: 14px; padding: 4px 6px; border-radius: 8px; }
+  .btn-link:hover { color: #67e8f9; }
+  .btn-row { display: flex; flex-direction: column; gap: 12px; }
+  .btn-row > * { flex: 1; }
+  @media (min-width: 480px) { .btn-row { flex-direction: row; } }
+
+  /* Home */
+  .hero { display: grid; gap: 40px; align-items: center; padding-top: 40px; }
+  .eyebrow {
+    display: inline-block; border: 1px solid rgba(34,211,238,.3); background: rgba(34,211,238,.1);
+    color: #a5f3fc; font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 999px;
+  }
+  .hero h1 { margin-top: 16px; font-size: clamp(32px, 6vw, 52px); font-weight: 800; letter-spacing: -.02em; line-height: 1.12; color: #fff; }
+  .grad-text { background: linear-gradient(90deg, #67e8f9, #c084fc); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lede { margin-top: 16px; color: #9ca3af; font-size: 18px; max-width: 540px; }
+  .hero .btn-row { margin-top: 28px; }
+  .checks { list-style: none; padding: 0; margin: 28px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; color: #cbd5e1; font-size: 14px; max-width: 420px; }
+  .checks li::before { content: "✓ "; color: #67e8f9; font-weight: 700; }
+  .art { width: 100%; max-width: 480px; margin: 0 auto; }
+  .art svg { width: 100%; height: auto; display: block; }
+  @media (min-width: 900px) { .hero { grid-template-columns: 1fr 1fr; padding-top: 64px; } }
+
+  .section { margin-top: 80px; scroll-margin-top: 90px; }
+  .section h2 { font-size: 28px; font-weight: 700; color: #fff; text-align: center; }
+  .section .sub { text-align: center; color: #9ca3af; margin-top: 8px; }
+  .steps { margin-top: 32px; display: grid; gap: 16px; }
+  @media (min-width: 720px) { .steps { grid-template-columns: repeat(3, 1fr); } }
+  .step { padding: 24px; }
+  .step-num {
+    width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; background: rgba(34,211,238,.15); color: #67e8f9;
+  }
+  .step:nth-child(2) .step-num { background: rgba(168,85,247,.15); color: #d8b4fe; }
+  .step:nth-child(3) .step-num { background: rgba(59,130,246,.15); color: #93c5fd; }
+  .step h3 { margin-top: 16px; font-size: 17px; color: #fff; font-weight: 600; }
+  .step p { margin-top: 6px; font-size: 14px; color: #9ca3af; }
+
+  .platforms { margin-top: 64px; padding: 24px; }
+  .platforms h2 { font-size: 18px; color: #fff; font-weight: 600; }
+  .platforms .grid { margin-top: 16px; display: grid; gap: 16px; font-size: 14px; color: #9ca3af; }
+  @media (min-width: 720px) { .platforms .grid { grid-template-columns: repeat(3, 1fr); } }
+  .platforms strong { color: #e5e7eb; }
+
+  /* App */
+  .app { max-width: 640px; margin: 0 auto; padding-top: 32px; }
+  .app-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; font-size: 13px; color: #6b7280; }
+  .upload {
+    display: block; text-align: center; cursor: pointer; padding: 32px 20px;
+    border: 2px dashed rgba(34,211,238,.4); border-radius: 24px; transition: border-color .2s;
+  }
+  .upload:hover, .upload:focus-visible { border-color: #67e8f9; }
+  .upload-icon {
+    width: 56px; height: 56px; margin: 0 auto 12px; border-radius: 16px; color: #67e8f9;
+    background: linear-gradient(135deg, rgba(6,182,212,.2), rgba(168,85,247,.2));
+    display: flex; align-items: center; justify-content: center;
+  }
+  .upload-icon svg { width: 28px; height: 28px; }
+  .upload p.title { font-weight: 600; color: #fff; }
+  .upload p.hint { font-size: 12px; color: #9ca3af; margin-top: 4px; }
+  .sr-only-input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; pointer-events: none; }
+
+  .status {
+    margin-top: 16px; font-size: 14px; border-radius: 12px; padding: 12px 16px; border: 1px solid;
+  }
+  .status.ok { border-color: rgba(34,211,238,.3); background: rgba(34,211,238,.1); color: #cffafe; }
+  .status.warn { border-color: rgba(251,191,36,.4); background: rgba(251,191,36,.1); color: #fef3c7; }
+  .status.error { border-color: rgba(239,68,68,.4); background: rgba(239,68,68,.1); color: #fecaca; }
+
+  .pages { margin-top: 24px; padding: 20px; }
+  .pages-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .pages-head h2 { font-size: 17px; color: #fff; font-weight: 600; }
+  .thumbs { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-height: 420px; overflow-y: auto; }
+  @media (min-width: 560px) { .thumbs { grid-template-columns: repeat(3, 1fr); } }
+  .thumb { position: relative; border-radius: 12px; overflow: hidden; border: 1px solid rgba(148,163,184,.2); background: rgba(0,0,0,.35); }
+  .thumb img { display: block; width: 100%; height: 96px; object-fit: cover; }
+  .thumb .badge {
+    position: absolute; left: 6px; top: 6px; background: rgba(0,0,0,.7); color: #fff;
+    font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 6px;
+  }
+  .thumb .controls {
+    position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; gap: 4px;
+    padding: 4px; background: linear-gradient(to top, rgba(0,0,0,.85), transparent);
+  }
+  .thumb-btn {
+    width: 28px; height: 28px; border-radius: 8px; border: 0; color: #fff; background: rgba(255,255,255,.15);
+    font-size: 12px; display: flex; align-items: center; justify-content: center;
+  }
+  .thumb-btn.danger { background: #dc2626; }
+  .pdf-actions { margin-top: 20px; }
+
+  /* Footer */
+  footer { border-top: 1px solid rgba(255,255,255,.05); padding: 24px 16px; text-align: center; font-size: 12px; color: #6b7280; }
+  footer button { background: none; border: 0; text-decoration: underline; color: #9ca3af; font-size: 12px; padding: 0 2px; }
+
+  /* Modals */
+  .modal {
+    position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.75);
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+  }
+  .modal-card { max-width: 520px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 24px; }
+  .modal-card h2 { font-size: 20px; color: #67e8f9; font-weight: 700; margin-bottom: 4px; }
+  .modal-card .updated { font-size: 12px; color: #6b7280; margin-bottom: 8px; }
+  .modal-card h3 { margin-top: 16px; font-size: 15px; color: #e2e8f0; font-weight: 600; }
+  .modal-card p, .modal-card li { margin-top: 6px; font-size: 14px; color: #aab4c3; }
+  .modal-card ul { margin: 6px 0 0; padding-left: 20px; }
+  .modal-card .btn-ghost { width: 100%; margin-top: 20px; padding: 12px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true"></div>
+
+<header class="topbar glass" style="border-radius:0; border-left:0; border-right:0; border-top:0;">
+  <div class="wrap">
+    <button type="button" class="brand" onclick="showHome()">
+      <span class="logo" aria-hidden="true">⚡</span>
+      <span>Quick PDF</span>
+      <span class="brand-by">by NS</span>
+    </button>
+    <nav class="nav" aria-label="Main">
+      <button type="button" onclick="showHome()">Home</button>
+      <button type="button" onclick="openModal('aboutModal')">About</button>
+      <button type="button" onclick="openModal('termsModal')">Terms</button>
+      <button type="button" onclick="openModal('privacyModal')">Privacy</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- HOME -->
+  <section id="homeSection">
+    <div class="hero">
+      <div>
+        <span class="eyebrow">100% in your browser · No uploads</span>
+        <h1>Turn photos into a <span class="grad-text">clean PDF</span> in seconds</h1>
+        <p class="lede">Combine JPG, PNG, WebP and iPhone photos into one PDF. Works on iPhone, Android, Mac, Windows and Linux with any modern browser.</p>
+        <div class="btn-row">
+          <button type="button" class="btn-primary" onclick="showApp()">🚀 Start converting</button>
+          <button type="button" class="btn-ghost" onclick="document.getElementById('how').scrollIntoView()">How it works</button>
+        </div>
+        <ul class="checks">
+          <li>No account needed</li>
+          <li>No watermark</li>
+          <li>Files never leave your device</li>
+          <li>Free to use</li>
+        </ul>
+      </div>
+
+      <div class="art" aria-hidden="true">
+        <svg viewBox="0 0 480 380">
+          <defs>
+            <linearGradient id="pg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e293b"/><stop offset="1" stop-color="#0f172a"/></linearGradient>
+            <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#a855f7"/></linearGradient>
+            <linearGradient id="photo1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#38bdf8"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient>
+            <linearGradient id="photo2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f472b6"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+            <linearGradient id="photo3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#0d9488"/></linearGradient>
+          </defs>
+          <rect x="150" y="30" width="200" height="270" rx="16" fill="url(#pg)" stroke="#334155" transform="rotate(8 250 165)"/>
+          <rect x="110" y="50" width="200" height="270" rx="16" fill="url(#pg)" stroke="#334155" transform="rotate(-4 210 185)"/>
+          <rect x="70" y="70" width="210" height="270" rx="16" fill="#0f172a" stroke="url(#accent)" stroke-width="2"/>
+          <rect x="92" y="96" width="60" height="22" rx="6" fill="url(#accent)"/>
+          <text x="122" y="112" font-size="12" font-weight="700" fill="#0b0f17" text-anchor="middle" font-family="system-ui, sans-serif">PDF</text>
+          <rect x="92" y="136" width="166" height="92" rx="10" fill="url(#photo1)"/>
+          <circle cx="130" cy="164" r="10" fill="#fef08a" opacity=".9"/>
+          <path d="M92 228 L140 180 L178 212 L210 190 L258 228 Z" fill="#0ea5e9" opacity=".55"/>
+          <rect x="92" y="246" width="110" height="8" rx="4" fill="#334155"/>
+          <rect x="92" y="262" width="150" height="8" rx="4" fill="#334155"/>
+          <rect x="92" y="278" width="80" height="8" rx="4" fill="#334155"/>
+          <rect x="300" y="110" width="110" height="80" rx="12" fill="url(#photo2)" transform="rotate(6 355 150)"/>
+          <rect x="318" y="210" width="100" height="72" rx="12" fill="url(#photo3)" transform="rotate(-5 368 246)"/>
+          <path d="M300 60 C 340 20, 400 30, 430 70" fill="none" stroke="url(#accent)" stroke-width="3" stroke-dasharray="6 7" stroke-linecap="round"/>
+          <path d="M422 62 L434 72 L418 76 Z" fill="#a855f7"/>
+          <circle cx="40" cy="40" r="3" fill="#22d3ee"/>
+          <circle cx="450" cy="300" r="4" fill="#a855f7"/>
+          <circle cx="420" cy="30" r="2.5" fill="#f472b6"/>
+        </svg>
+      </div>
+    </div>
+
+    <div id="how" class="section">
+      <h2>How it works</h2>
+      <p class="sub">Three steps. No sign-up, no waiting for uploads.</p>
+      <div class="steps">
+        <div class="glass step">
+          <div class="step-num">1</div>
+          <h3>Choose photos</h3>
+          <p>Pick from your gallery, camera roll or file manager. Select as many as you need.</p>
+        </div>
+        <div class="glass step">
+          <div class="step-num">2</div>
+          <h3>Arrange</h3>
+          <p>Use the arrows to reorder pages or remove any photo you don't want.</p>
+        </div>
+        <div class="glass step">
+          <div class="step-num">3</div>
+          <h3>Download or share</h3>
+          <p>Your PDF is created on your device. Save it to Downloads, or share it directly from your phone.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass platforms">
+      <h2>Works on</h2>
+      <div class="grid">
+        <p><strong>iPhone and iPad:</strong> Safari 15 or newer. HEIC photos from the camera are supported.</p>
+        <p><strong>Android:</strong> Chrome, Samsung Internet or Firefox. JPG, PNG, WebP and GIF are supported. For HEIC photos, set the camera format to JPG in Settings, or convert them first.</p>
+        <p><strong>Computers:</strong> Current versions of Chrome, Edge, Firefox, Safari and Opera on Windows, macOS and Linux.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- APP -->
+  <section id="appSection" class="app hidden">
+    <div class="app-top">
+      <button type="button" class="btn-link" onclick="showHome()">← Back</button>
+      <span>Max 50 photos · 30 MB each</span>
+    </div>
+
+    <label id="uploadArea" for="fileInput" tabindex="0" class="upload glass">
+      <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,image/*" class="sr-only-input" onchange="handleFiles(event)">
+      <div class="upload-icon" aria-hidden="true">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+      </div>
+      <p class="title">Tap to choose photos</p>
+      <p class="hint">JPG, PNG, WebP, GIF, HEIC · Processed on your device</p>
+    </label>
+
+    <p id="statusMsg" role="status" aria-live="polite" class="status hidden"></p>
+
+    <div id="previewContainer" class="glass pages hidden">
+      <div class="pages-head">
+        <h2>Pages (<span id="imageCount">0</span>)</h2>
+        <button type="button" class="btn-link" onclick="clearAll()">Clear all</button>
+      </div>
+      <ol id="thumbnailList" class="thumbs"></ol>
+      <div class="pdf-actions btn-row">
+        <button id="downloadBtn" type="button" class="btn-primary" onclick="generatePDF()">📥 Download PDF</button>
+        <button id="shareBtn" type="button" class="btn-ghost" onclick="sharePDF()" disabled>🔗 Share</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  © 2026 Nazar Softwares (NS) · All rights reserved ·
+  <button type="button" onclick="openModal('termsModal')">Terms</button> ·
+  <button type="button" onclick="openModal('privacyModal')">Privacy</button>
+</footer>
+
+<!-- MODALS -->
+<div id="aboutModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+  <div class="glass modal-card">
+    <h2 id="aboutTitle">About Quick PDF</h2>
+    <p>Quick PDF is a free web tool built by <strong>Nazar Softwares (NS)</strong> to turn photos into PDF documents. Conversion runs entirely in your browser, so your photos are not sent to our servers.</p>
+    <p>It works on iPhone, iPad, Android, Mac, Windows, and Linux. You need a current web browser and nothing else: no app install and no account.</p>
+    <button type="button" class="btn-ghost" onclick="closeModal('aboutModal')">Close</button>
+  </div>
+</div>
+
+<div id="termsModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="termsTitle">
+  <div class="glass modal-card">
+    <h2 id="termsTitle">Terms of Use</h2>
+    <p class="updated">Last updated: October 29, 2026</p>
+
+    <h3>1. Agreement</h3>
+    <p>By using Quick PDF ("the Service"), provided by Nazar Softwares ("NS", "we", "us"), you agree to these Terms. If you do not agree, do not use the Service.</p>
+
+    <h3>2. What the Service does</h3>
+    <p>The Service converts image files you select into a PDF file that is generated and saved on your own device. We do not store, copy, or review your files.</p>
+
+    <h3>3. Eligibility</h3>
+    <p>You must be at least 13 years old, or the minimum age in your country, to use the Service. If you are under 18, use it with a parent or guardian's permission.</p>
+
+    <h3>4. Acceptable use</h3>
+    <ul>
+      <li>Do not use the Service to process content you have no right to use, or to break any law.</li>
+      <li>Do not attempt to disrupt, reverse engineer, or overload the Service, or use automated tools to scrape it.</li>
+      <li>Do not use the Service to create content that is unlawful, abusive, or depicts child sexual abuse. We will cooperate with law enforcement where required.</li>
+    </ul>
+
+    <h3>5. Your content</h3>
+    <p>You keep all rights to the photos and PDFs you create. You are responsible for having the rights and permissions needed for any content you convert.</p>
+
+    <h3>6. Your responsibility for files</h3>
+    <p>Because files are processed on your device, keep your own backups of originals. Closing or refreshing the page, clearing browser data, or losing your device may mean a file in progress is lost. We cannot recover it.</p>
+
+    <h3>7. Intellectual property</h3>
+    <p>The Quick PDF name, logo, design, and code are owned by Nazar Softwares. Third-party libraries (jsPDF) remain under their own open-source licenses.</p>
+
+    <h3>8. No warranty</h3>
+    <p>The Service is provided "as is" and "as available", without warranties of any kind, express or implied, including fitness for a particular purpose, accuracy, or uninterrupted operation. Output may vary by browser and device. Check important PDFs before relying on them.</p>
+
+    <h3>9. Limitation of liability</h3>
+    <p>To the fullest extent permitted by law, NS is not liable for indirect, incidental, special, or consequential damages, or for loss of data or files, arising from your use of the Service. Because the Service is free, our total liability is limited to zero.</p>
+
+    <h3>10. Changes and availability</h3>
+    <p>We may change, suspend, or discontinue any part of the Service, and may update these Terms. Continued use after changes means you accept the updated Terms.</p>
+
+    <h3>11. Governing law</h3>
+    <p>These Terms are governed by the laws of <strong>[Your country / state]</strong>, and disputes are subject to the courts of <strong>[Your city]</strong>, unless local law requires otherwise.</p>
+
+    <h3>12. Contact</h3>
+    <p>Questions about these Terms: <strong>[your support email]</strong>.</p>
+
+    <button type="button" class="btn-ghost" onclick="closeModal('termsModal')">I understand</button>
+  </div>
+</div>
+
+<div id="privacyModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="privacyTitle">
+  <div class="glass modal-card">
+    <h2 id="privacyTitle">Privacy Policy</h2>
+    <p class="updated">Last updated: October 29, 2026</p>
+
+    <h3>1. Short version</h3>
+    <p>Your photos and PDFs stay on your device. We do not upload them, we do not keep them, and we do not sell data.</p>
+
+    <h3>2. What happens to your photos</h3>
+    <p>When you choose photos, the browser reads them locally. Conversion happens in your browser's memory. The finished PDF is saved by your browser to your device. Nothing is sent to our servers.</p>
+
+    <h3>3. Information we do not collect</h3>
+    <ul>
+      <li>No accounts, names, email addresses, or passwords.</li>
+      <li>No analytics, advertising, or tracking scripts.</li>
+      <li>No cookies or local storage used to identify you.</li>
+    </ul>
+
+    <h3>4. Technical data</h3>
+    <p>The page loads one library from a public content delivery network (jsPDF, hosted by Cloudflare). To load it, your browser contacts that provider, which can see your IP address and the request time. Our hosting provider may keep standard server access logs, such as IP address and browser type, for security and reliability. We do not link these logs to your files.</p>
+
+    <h3>5. Security measures</h3>
+    <ul>
+      <li>Files are checked by their actual content (file signature), not only by name or type. Files that are not recognized images, including SVG files that can contain scripts, are rejected.</li>
+      <li>Page content is inserted as text, not as HTML, which prevents script injection from file names.</li>
+      <li>Limits on file count and file size help keep your device responsive.</li>
+    </ul>
+    <p>No online service is perfectly secure. Keep your device and browser updated.</p>
+
+    <h3>6. Children</h3>
+    <p>The Service is not directed at children under 13 and we do not knowingly collect personal information from them.</p>
+
+    <h3>7. Your choices</h3>
+    <p>Since we store nothing, you control your data: delete a PDF from your Downloads folder whenever you like, and clear your browser history to remove local traces.</p>
+
+    <h3>8. Changes</h3>
+    <p>We may update this policy. The date at the top shows the latest version.</p>
+
+    <h3>9. Contact</h3>
+    <p>Privacy questions: <strong>[your privacy email]</strong>.</p>
+
+    <button type="button" class="btn-ghost" onclick="closeModal('privacyModal')">Close</button>
+  </div>
+</div>
+
+<script>
+  // ---- Limits and settings ----
+  const MAX_FILES = 50;
+  const MAX_FILE_BYTES = 30 * 1024 * 1024;
+  const MAX_IMAGE_SIDE = 3000;
+  const PAGE_MARGIN_MM = 10;
+  const JPEG_QUALITY = 0.92;
+
+  let items = [];          // { file, name, url }
+  let busy = false;
+  let lastPdf = null;      // { blob, name } of the most recent PDF
+
+  // ---- Navigation ----
+  function showApp() {
+    document.getElementById('homeSection').classList.add('hidden');
+    document.getElementById('appSection').classList.remove('hidden');
+    window.scrollTo(0, 0);
+  }
+
+  function showHome() {
+    document.getElementById('appSection').classList.add('hidden');
+    document.getElementById('homeSection').classList.remove('hidden');
+    window.scrollTo(0, 0);
+  }
+
+  // ---- Status (text only) ----
+  function setStatus(text, kind) {
+    const el = document.getElementById('statusMsg');
+    el.textContent = text;
+    el.className = 'status ' + (kind || 'ok');
+  }
+
+  function clearStatus() {
+    document.getElementById('statusMsg').classList.add('hidden');
+  }
+
+  // ---- Validate by file signature, not by name or MIME type ----
+  async function detectImageType(file) {
+    const head = new Uint8Array(await file.slice(0, 16).arrayBuffer());
+    const eq = (start, sig) => sig.every((b, i) => head[start + i] === b);
+    const ascii = (start, n) => String.fromCharCode(...head.slice(start, start + n));
+
+    if (eq(0, [0xFF, 0xD8, 0xFF])) return 'jpeg';
+    if (eq(0, [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])) return 'png';
+    if (ascii(0, 4) === 'GIF8') return 'gif';
+    if (ascii(0, 4) === 'RIFF' && ascii(8, 4) === 'WEBP') return 'webp';
+    if (ascii(4, 4) === 'ftyp' && /^(heic|heix|hevc|hevx|mif1|msf1|heim|heis)$/.test(ascii(8, 4))) return 'heic';
+    if (ascii(0, 2) === 'BM') return 'bmp';
+    return null; // SVG, HTML, executables, anything else
+  }
+
+  // ---- Add files ----
+  async function handleFiles(event) {
+    const input = event.target;
+    const picked = Array.from(input.files || []);
+    input.value = '';
+    if (picked.length === 0) return;
+    clearStatus();
+
+    const room = MAX_FILES - items.length;
+    if (room <= 0) {
+      setStatus(`You can add up to ${MAX_FILES} photos. Remove some to add more.`, 'warn');
+      return;
+    }
+    let files = picked;
+    if (picked.length > room) {
+      files = picked.slice(0, room);
+      setStatus(`Only ${room} more photo(s) can be added (limit ${MAX_FILES}).`, 'warn');
+    }
+
+    const rejected = [];
+    for (const file of files) {
+      if (file.size > MAX_FILE_BYTES) { rejected.push(`${file.name} (larger than 30 MB)`); continue; }
+      const type = await detectImageType(file);
+      if (!type) { rejected.push(`${file.name} (not a supported image)`); continue; }
+      items.push({ file, name: file.name || 'photo', url: URL.createObjectURL(file) });
+    }
+
+    if (rejected.length) setStatus('Skipped: ' + rejected.join(', '), 'warn');
+    renderPreview();
+  }
+
+  // ---- Preview ----
+  function renderPreview() {
+    const list = document.getElementById('thumbnailList');
+    list.innerHTML = '';
+
+    items.forEach((item, index) => {
+      const li = document.createElement('li');
+      li.className = 'thumb';
+
+      const img = document.createElement('img');
+      img.src = item.url;
+      img.alt = `Page ${index + 1}: ${item.name}`;
+      img.decoding = 'async';
+      img.onerror = () => { img.alt = `${item.name} (preview not available in this browser)`; img.style.opacity = '0.3'; };
+
+      const badge = document.createElement('span');
+      badge.className = 'badge';
+      badge.textContent = String(index + 1);
+
+      const controls = document.createElement('div');
+      controls.className = 'controls';
+      controls.append(
+        makeThumbBtn('◀', 'Move left', index === 0, () => moveItem(index, -1)),
+        makeThumbBtn('×', 'Remove photo', false, () => removeItem(index), true),
+        makeThumbBtn('▶', 'Move right', index === items.length - 1, () => moveItem(index, 1))
+      );
+
+      li.append(img, badge, controls);
+      list.appendChild(li);
+    });
+
+    document.getElementById('imageCount').textContent = items.length;
+    document.getElementById('previewContainer').classList.toggle('hidden', items.length === 0);
+  }
+
+  function makeThumbBtn(label, aria, disabled, onClick, danger = false) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = label;
+    b.setAttribute('aria-label', aria);
+    b.disabled = disabled;
+    b.className = 'thumb-btn' + (danger ? ' danger' : '');
+    b.addEventListener('click', onClick);
+    return b;
+  }
+
+  function moveItem(index, dir) {
+    const target = index + dir;
+    if (target < 0 || target >= items.length) return;
+    [items[index], items[target]] = [items[target], items[index]];
+    renderPreview();
+  }
+
+  function removeItem(index) {
+    const [removed] = items.splice(index, 1);
+    if (removed) URL.revokeObjectURL(removed.url);
+    if (items.length === 0) clearStatus();
+    renderPreview();
+  }
+
+  function clearAll() {
+    items.forEach(item => URL.revokeObjectURL(item.url));
+    items = [];
+    clearStatus();
+    renderPreview();
+  }
+
+  // ---- Conversion helpers ----
+  function loadImage(url) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error('decode'));
+      img.src = url;
+    });
+  }
+
+  function imageToJpeg(img) {
+    let w = img.naturalWidth;
+    let h = img.naturalHeight;
+    if (!w || !h) throw new Error('empty');
+
+    const scale = Math.min(1, MAX_IMAGE_SIDE / Math.max(w, h));
+    w = Math.max(1, Math.round(w * scale));
+    h = Math.max(1, Math.round(h * scale));
+
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    if (!ctx) throw new Error('canvas');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(img, 0, 0, w, h);
+
+    const dataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+    canvas.width = 0;
+    canvas.height = 0;
+    return { dataUrl, width: w, height: h };
+  }
+
+  function saveBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
+
+  // ---- Generate PDF ----
+  async function generatePDF() {
+    if (busy || items.length === 0) return;
+    busy = true;
+
+    const btn = document.getElementById('downloadBtn');
+    const originalLabel = btn.textContent;
+    btn.textContent = 'Converting…';
+    btn.disabled = true;
+    clearStatus();
+
+    await new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));
+
+    try {
+      const lib = window.jspdf;
+      if (!lib || typeof lib.jsPDF !== 'function') {
+        throw new Error('The PDF engine did not load. Check your connection and reload the page.');
+      }
+      const { jsPDF } = lib;
+
+      let doc = null;
+      const skipped = [];
+      let added = 0;
+
+      for (let i = 0; i < items.length; i++) {
+        btn.textContent = `Converting ${i + 1} of ${items.length}…`;
+        try {
+          const img = await loadImage(items[i].url);
+          const { dataUrl, width, height } = imageToJpeg(img);
+          const orientation = width >= height ? 'landscape' : 'portrait';
+
+          if (!doc) {
+            doc = new jsPDF({ orientation, unit: 'mm', format: 'a4', compress: true });
+          } else {
+            doc.addPage('a4', orientation);
+          }
+
+          const pageW = doc.internal.pageSize.getWidth();
+          const pageH = doc.internal.pageSize.getHeight();
+          const ratio = Math.min((pageW - PAGE_MARGIN_MM * 2) / width, (pageH - PAGE_MARGIN_MM * 2) / height);
+          const drawW = width * ratio;
+          const drawH = height * ratio;
+
+          doc.addImage(dataUrl, 'JPEG', (pageW - drawW) / 2, (pageH - drawH) / 2, drawW, drawH);
+          added++;
+        } catch (err) {
+          skipped.push(items[i].name);
+        }
+        await new Promise(r => setTimeout(r, 0));
+      }
+
+      if (!doc || added === 0) {
+        throw new Error('None of the selected photos could be read by this browser. HEIC photos may need to be converted to JPG first.');
+      }
+
+      const pdfBlob = doc.output('blob');
+      lastPdf = { blob: pdfBlob, name: `QuickPDF_${Date.now()}.pdf` };
+      saveBlob(pdfBlob, lastPdf.name);
+      document.getElementById('shareBtn').disabled = false;
+
+      if (skipped.length) {
+        setStatus(`PDF saved with ${added} page(s). Skipped ${skipped.length} photo(s) this browser could not read: ${skipped.join(', ')}.`, 'warn');
+      } else {
+        setStatus(`Done. ${added} page(s) saved to your device.`, 'ok');
+      }
+    } catch (error) {
+      console.error('Quick PDF error:', error);
+      setStatus(error && error.message ? error.message : 'Something went wrong while creating the PDF.', 'error');
+    } finally {
+      btn.textContent = originalLabel;
+      btn.disabled = false;
+      busy = false;
+    }
+  }
+
+  // ---- Share the last PDF ----
+  async function sharePDF() {
+    if (!lastPdf) {
+      setStatus('Create a PDF first, then share it.', 'warn');
+      return;
+    }
+    const file = new File([lastPdf.blob], lastPdf.name, { type: 'application/pdf' });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: 'Quick PDF', text: 'Created with Quick PDF' });
+      } catch (err) {
+        if (err && err.name !== 'AbortError') {
+          setStatus('Sharing failed. Use Download and share the file from your Files app.', 'error');
+        }
+      }
+    } else {
+      setStatus('Direct sharing is not supported in this browser. Your PDF is in Downloads. Share it from your Files app.', 'warn');
+    }
+  }
+
+  // ---- Modals ----
+  function openModal(id) {
+    const m = document.getElementById(id);
+    m.classList.remove('hidden');
+    const btn = m.querySelector('.btn-ghost');
+    if (btn) btn.focus();
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.add('hidden');
+  }
+
+  document.querySelectorAll('.modal').forEach(modal => {
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(modal.id); });
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal:not(.hidden)').forEach(m => closeModal(m.id));
+    }
+  });
+
+  document.getElementById('uploadArea').addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      document.getElementById('fileInput').click();
+    }
+  });
+
+  window.addEventListener('pagehide', () => {
+    items.forEach(item => URL.revokeObjectURL(item.url));
+  });
+</script>
+</body>
+</html>
